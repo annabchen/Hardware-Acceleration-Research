@@ -7,12 +7,13 @@ declare another variable (possibly a struct?) to keep track of this
 
 module rectangle_loop 
     #(parameter 
+      // 2x2 matrix in this case
       MATRIX_ROW = 2,
       MATRIX_COL = 2,
-      ITERATION = 8/*may be unnecessary*/)
-     (input int rnd_row, rnd_col,
-      input logic m[MATRIX_ROW][MATRIX_COL],
-      output logic m_outm[MATRIX_ROW][MATRIX_COL]);
+      ITERATION = 8/*may be unnecessary- currently not used*/)
+    (input int rnd_row, rnd_col,// random row and column for selecting a specific index of the matrix
+      input logic m[MATRIX_ROW][MATRIX_COL], // input matrix as a 2d array
+      output logic m_outm[MATRIX_ROW][MATRIX_COL]); // output matrix
       
       
     /*
@@ -22,9 +23,9 @@ module rectangle_loop
     logic chkbrd_0[2][2] = '{ '{0,1}, '{1,0} }; //checkerboard unit 
     logic chkbrd_1[2][2] = '{ '{1,0}, '{0,1} }; //checkerboard unit
     
-    typedef enum {INIT_ONE, INIT_ZERO} init_states;//case for whether we have 0 or 1 entry after initial generation
-    typedef enum {COL_TWO, ROW_TWO_COL, CHKBRD_0, FAIL_0} init_entry_one; //stages of loop algorithm   
-    typedef enum {ROW_TWO, COL_TWO_ROW, CHKBRD_1, FAIL_1} init_entry_zero; //stages of loop algorithm
+    typedef enum {INIT_ONE, INIT_ZERO} init_states;//case for whether we have 0 or 1 entry at randomly selected index after initial generation
+    typedef enum {COL_TWO, ROW_TWO_COL, CHKBRD_0, FAIL_0} init_entry_one; //stages of loop algorithm (initial entry of 1)   
+    typedef enum {ROW_TWO, COL_TWO_ROW, CHKBRD_1, FAIL_1} init_entry_zero; //stages of loop algorithm (initial entry of 0)
     
     /*
     case variable declarations
