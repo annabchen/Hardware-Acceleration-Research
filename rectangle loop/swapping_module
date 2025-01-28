@@ -3,23 +3,101 @@ module swapping
   #(parameter
     ROW_LEN = 4,
     COL_LEN = 4) 
-  (input logic [19:0] inM[ROW_LEN][COL_LEN], // assuming the 20-bit is the max length of the matrix (arbitrarily)
+  (input logic [3:0] inM[4][4], // 4x4 array for now
     input int r1, 
     input int r2,
     input int c1,
     input int c2,
-   output logic [19:0] outM[ROW_LEN][COL_LEN]);
+   output logic [3:0] outM[4][4]);
 
-  outM = inM; // start w original matrix
+  logic [1:0] clk;
+  
+  // copying over initial array
+  arraycopy #(ROW_LEN, COL_LEN) outM(clk, inM, outM);
   
   // not the original values to flip them
-  outM[r1][c1] = ~(inM[r1][c1]);
-  outM[r1][c2] = ~(inM[r1][c2]);
-  outM[r2][c1] = ~(inM[r2][c1]);
-  outM[r2][c2] = ~(inM[r2][c2]);
+  always @(posedge clk)
+	begin
+  		outM[r1][c1] = ~(inM[r1][c1]);
+  		outM[r1][c2] = ~(inM[r1][c2]);
+ 		outM[r2][c1] = ~(inM[r2][c1]);
+  		outM[r2][c2] = ~(inM[r2][c2]);
+    end
     
 endmodule
 
 
 
-// swapping testbench
+module arraycopy#(parameter ROW_LEN = 4, COL_LEN = 4) (
+    //input  logic clk,
+  // should i use a clk for this loop?
+  	input  logic [3:0] inM[ROW_LEN][COL_LEN],
+ 	output logic [3:0] outM[ROW_LEN][COL_LEN]);
+  
+  logic [3:0] col_idx;
+  logic [3:0] row_idx;
+    
+  col_idx = 0;
+  row_idx = 0;
+  
+  logic loop = 1;
+    
+  always begin
+    if(loop == 1) begin
+
+      outM[row_idx][col_idx] = inM[row_idx][col_idx];
+            
+          // manually handle "nested" loops for row and column indices
+      if (col_idx < COL_LEN - 1) begin // iterate down the row
+            col_idx = col_idx + 1;
+         end 
+      else begin // if at end of row
+        if (row_idx < ROW_LEN) begin // check if not at last row
+            row_idx = row_idx + 1; // next row
+            col_idx = 0; // reset column
+          end
+        else begin // if at last row, end the loop
+          	loop = 0;
+          end
+      end
+   end
+endmodule
+
+
+// Code your testbench here
+// or browse Examples
+module swappingtb();
+	
+  	//logic ROW_LEN = 4;
+  	//logic COL_LEN = 4;
+  logic [3:0] inM[4][4];
+  	logic r1;
+ 	logic r2;
+  	logic c1;
+  	logic c2;
+  logic [3:0] outM[4][4];
+	//swapping dut#(ROW_LEN, COL_LEN) (inM, r1, r2, c1, c2, outM);
+  swapping dut(inM, r1, r2, c1, c2, outM);
+  
+	// generate clock
+	always
+		begin
+			clk = 1; clk = 0;
+		end
+  
+	// then send timed + checked tests
+  //what
+	initial
+		begin
+			//reset = 1; #12; reset = 0;
+          inM[r1][c1] = 1;
+          inM[r2][c2] = 1;
+          assert ( outM[r1][c2] === 0 ) else $error("failed");
+          assert ( outM[r2][c1] === 0 ) else $error("failed");
+          
+          inM[r1][c1] = 0;
+          inM[r2][c2] = 0;
+          assert ( outM[r1][c2] === 1 ) else $error("failed");
+          assert ( outM[r2][c1] === 1 ) else $error("failed");
+		end
+endmodule
