@@ -1,0 +1,25 @@
+// swapping module- simply complete the swap
+module swapping
+  #(parameter
+    ROW_LEN = 4,
+    COL_LEN = 4) 
+  (input logic [19:0] inM[ROW_LEN][COL_LEN], // assuming the 20-bit is the max length of the matrix (arbitrarily)
+    input int r1, 
+    input int r2,
+    input int c1,
+    input int c2,
+   output logic [19:0] outM[ROW_LEN][COL_LEN]);
+
+  outM = inM; // start w original matrix
+  
+  // not the original values to flip them
+  outM[r1][c1] = ~(inM[r1][c1]);
+  outM[r1][c2] = ~(inM[r1][c2]);
+  outM[r2][c1] = ~(inM[r2][c1]);
+  outM[r2][c2] = ~(inM[r2][c2]);
+    
+endmodule
+
+
+
+// swapping testbench
