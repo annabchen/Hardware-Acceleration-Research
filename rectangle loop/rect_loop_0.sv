@@ -53,25 +53,29 @@ endmodule
 
 
 
-// swapping module- checks if the given points form a checkerboard unit and if so, complete the swap
+// swapping module- simply complete the swap
 module swapping
   #(parameter
     ROW_LEN = 4,
     COL_LEN = 4) 
-  (input logic [19:0] inM[ROW_LEN][COL_LEN], // assuming the 20-bit is the max length of the matrix
-    input int r1, 
-    input int r2,
-    input int c1,
-    input int c2,
-   output logic [19:0] outM[ROW_LEN][COL_LEN]);
+  (input logic [3:0] inM[4][4], // 4x4 array for now
+   input logic [1:0] r1, 		// just needs to be log2(num of squares) long, should be logics instead of ints
+   input logic [1:0] r2,
+   input logic [1:0] c1,
+   input logic [1:0] c2,
+   input logic clk,	  			// should have a clk input in case we want it to happen at the same time as another module
+   output logic [3:0] outM[4][4]);
 
-  outM = inM; // start w original matrix
   
-  if(inM[r1][c2] == inM[r2][c1]) begin // just testing for this bc we already know that (r2,c2) has the same value as (r1,c2) and (r1, c2) != (r1,c1)
-    // XOR the original values to flip them
-    outM[r1][c1] = ^(inM[r1][c1]);
-    outM[r1][c2] = ^(inM[r1][c2]);
-    outM[r2][c1] = ^(inM[r2][c1]);
-    outM[r2][c2] = ^(inM[r2][c2]);
-  end
+  // copying over initial array-- NOT necessary!
+  
+  // not the original values to flip them
+  always @(posedge clk)
+	begin
+      	outM[r1][c1] = ~(inM[r1][c1]); // use non-blocking statements here so they all happen at once
+  		outM[r1][c2] = ~(inM[r1][c2]);
+ 		outM[r2][c1] = ~(inM[r2][c1]);
+  		outM[r2][c2] = ~(inM[r2][c2]);
+    end
+    
 endmodule
